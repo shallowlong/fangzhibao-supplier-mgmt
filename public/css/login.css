@@ -1,0 +1,24 @@
+body {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.login-container {
+	width: 100%;
+	max-width: 400px;
+	padding: 2rem;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+	margin-bottom: 1.5rem;
+}
+
+.error-message {
+	display: none;
+	margin-top: 1rem;
+}

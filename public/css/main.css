@@ -1,0 +1,60 @@
+.container {
+	max-width: 1800px
+}
+
+.page-header {
+	margin-bottom: 2rem;
+	text-align: center;
+}
+
+.card {
+	border-radius: 10px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+	margin-bottom: 2rem;
+}
+
+.card-header {
+	background-color: #f1f5f9;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+.upload-area {
+	border: 2px dashed #adb5bd;
+	border-radius: 8px;
+	padding: 3rem 2rem;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	background-color: #f8fafc;
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+	border-color: #4dabf7;
+	background-color: #f1f5f9;
+}
+
+.upload-icon {
+	font-size: 3rem;
+	color: #64748b;
+	margin-bottom: 1rem;
+}
+
+.file-input {
+	display: none;
+}
+
+.upload-message {
+	margin-top: 1rem;
+	display: none;
+}
+
+.spinner-container {
+	display: none;
+	text-align: center;
+	padding: 1rem;
+}
+
+.hidden {
+	display: none;
+}

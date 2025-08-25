@@ -1,0 +1,35 @@
+	<footer>
+
+	</footer>
+
+	<div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalTitle"></h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body" id="modalBody">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">确定</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<% if(typeof(isLogin) === 'undefined') { %>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.7/js/bootstrap.bundle.min.js" integrity="sha512-Tc0i+vRogmX4NN7tuLbQfBxa8JkfUSAxSFVzmU31nVdHyiHElPPy2cWfFacmCJKw0VqovrzKhdd2TSTMdAxp2g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.24.2/bootstrap-table.min.js" integrity="sha512-GS/lQJ1AiKWEDCgf1yKepN4m/xewSX6jEVL06KQU6jdAZb3FprSXR2cdBL7FHmo6t5M2gcspMi8I6DqzfPGVew==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.24.2/locale/bootstrap-table-zh-CN.min.js" integrity="sha512-1z91kiOCGFEU6onJ74CjPlDmFW0GlQysovJAZVYV91qN5N6yr3S1Pn1FhXaN5HOuRjA0MLuMnRVxvqc/pB0PYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<% } %>
+<% if (typeof(addJs) !== 'undefined') { %>
+	<% addJs.forEach(function(js){ %>
+	<script src="/js/<%= js %>.js"></script>
+	<% }); %>
+<% } %>
+
+</body>
+
+</html>
