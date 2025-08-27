@@ -1,5 +1,5 @@
 const debug = require('debug')('fangzhibao-supplier-mgmt:services/UserService')
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcryptjs')
 const { sequelize } = require('../database')
 
 const userModel = sequelize.models.User

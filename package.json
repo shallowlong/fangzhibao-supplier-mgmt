@@ -3,15 +3,14 @@
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
-		"start": "dotenvx run -- node ./bin/www",
+		"start": "node ./bin/www",
 		"dstart": "SET DEBUG=fangzhibao-supplier-mgmt:* & npm start"
 	},
 	"author": "shallowlong@gmail.com",
 	"license": "MIT",
 	"description": "",
 	"dependencies": {
-		"@dotenvx/dotenvx": "^1.48.4",
-		"bcrypt": "^6.0.0",
+		"bcryptjs": "^3.0.2",
 		"cookie-parser": "~1.4.4",
 		"debug": "~2.6.9",
 		"dotenv": "^17.2.1",
