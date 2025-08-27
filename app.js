@@ -2,6 +2,7 @@ const path = require('path');
 
 const createHttpError = require('http-errors');
 const express = require('express');
+const session = require('express-session');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -21,9 +22,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(fileUpload({
 	defParamCharset: 'utf8'
 }));
+app.use(session({
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		maxAge: 5 * 60 * 1000,
+		httpOnly: true,
+		secure: process.env.NODE_ENV === 'production',
+		sameSite: 'strict'
+	}
+}));
 
 
+const loginRoute = require('./routes/loginRoute');
 const mainRoute = require('./routes/mainRoute');
+app.use('/login', loginRoute);
 app.use('/', mainRoute);
 
 

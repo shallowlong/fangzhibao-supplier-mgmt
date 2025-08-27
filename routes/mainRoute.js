@@ -5,55 +5,19 @@ const fs = require('fs');
 
 const express = require('express');
 const router = express.Router();
-const authenticateToken = require('./authRoute');
-const jwt = require('jsonwebtoken');
+const authToken = require('./authRoute');
 
-const userService = require('../services/userService');
 const supplierService = require('../services/supplierService');
 
-router.get('/', authenticateToken, async (req, res, next) => {
+
+router.get('/', authToken, async (req, res, next) => {
 	let suppliers = await supplierService.getAllSuppliers();
 	res.render('main', {
 		suppliers: suppliers
 	});
 });
 
-router.get('/login', (req, res, next) => {
-	const error = req.query.error;
-	res.render('login', { error });
-});
-
-router.post('/login', async (req, res, next) => {
-	const { username, password } = req.body;
-
-	let validated = await userService.validateUser(username, password);
-	let message = '登录成功';
-
-	debug(`validate result = ${validated}`);
-
-	if (validated) {
-		let jwt_token = jwt.sign(
-			{ username: username },
-			process.env.JWT_SECRET,
-			{ expiresIn: '1h' } // 令牌1小时后过期
-		);
-		res.cookie('jwt_token', jwt_token, {
-			httpOnly: true, // 禁止 JavaScript 访问（防 XSS）
-			secure: process.env.NODE_ENV === 'production', // 生产环境仅通过 HTTPS 传输
-			maxAge: 3600000, // 过期时间（1小时）
-			sameSite: 'strict' // 限制跨域请求携带（防 CSRF）
-		});
-	} else {
-		message = '用户名或密码错误';
-	}
-
-	res.json({
-		success: validated,
-		message: message
-	});
-});
-
-router.post('/upload', authenticateToken, async (req, res) => {
+router.post('/upload', authToken, async (req, res) => {
 	let respJson = {
 		success: false,
 		message: ''
@@ -102,7 +66,7 @@ router.post('/upload', authenticateToken, async (req, res) => {
 	res.json(respJson);
 });
 
-router.post('/addNewSupplier', authenticateToken, async (req, res) => {
+router.post('/addNewSupplier', authToken, async (req, res) => {
 	let respJson = {
 		success: false,
 		message: ''
@@ -120,7 +84,7 @@ router.post('/addNewSupplier', authenticateToken, async (req, res) => {
 	res.json(respJson)
 })
 
-router.post('/updateSupplier', authenticateToken, async (req, res) => {
+router.post('/updateSupplier', authToken, async (req, res) => {
 	let respJson = {
 		success: false,
 		message: ''
