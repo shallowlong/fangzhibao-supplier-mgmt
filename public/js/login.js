@@ -94,6 +94,8 @@ $(document).ready(function () {
 	}
 
 	$('#username, #password, #captcha').focus(function () {
-		$('.error-message').hide();
+		setTimeout(()=> {
+			$('.error-message').fadeOut('slow');
+		}, 5000)
 	});
 });

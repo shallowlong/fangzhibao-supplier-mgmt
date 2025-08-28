@@ -8,11 +8,21 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const app = express();
+const MySQLStore = require('express-mysql-session')(session);
+const options = {
+	host: 'localhost',
+	port: 3306,
+	user: process.env.DATABASE_USER,
+	password: process.env.DATABASE_PASS,
+	database: process.env.DATABASE_NAME
+};
+const sessionStore = new MySQLStore(options);
 
 // view engine setup
 app.engine('.html', require('ejs').__express);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
+app.set('trust proxy', true);
 
 app.use(logger(process.env.MORGAN_OPTION));
 app.use(express.json());
@@ -26,11 +36,12 @@ app.use(session({
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: false,
+	store: sessionStore,
 	cookie: {
-		maxAge: 5 * 60 * 1000,
+		maxAge: 60 * 60 * 1000, // 默认1小时
 		httpOnly: true,
 		secure: process.env.NODE_ENV === 'production',
-		sameSite: 'strict'
+		sameSite: 'lax'
 	}
 }));
 
