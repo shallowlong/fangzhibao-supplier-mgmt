@@ -7,17 +7,11 @@ const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const app = express();
 const MySQLStore = require('express-mysql-session')(session);
-const options = {
-	host: 'localhost',
-	port: 3306,
-	user: process.env.DATABASE_USER,
-	password: process.env.DATABASE_PASS,
-	database: process.env.DATABASE_NAME
-};
-const sessionStore = new MySQLStore(options);
+const { customConnectionPool } = require('./database');
+const sessionStore = new MySQLStore({}, customConnectionPool);
 
+const app = express();
 // view engine setup
 app.engine('.html', require('ejs').__express);
 app.set('views', path.join(__dirname, 'views'));
