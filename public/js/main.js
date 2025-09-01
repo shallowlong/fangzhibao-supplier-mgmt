@@ -33,9 +33,17 @@ $(document).ready(function () {
 	});
 
 	fileInput.change(function () {
+		const maxSize = 16 * 1024 * 1024;
+
 		if (this.files.length) {
 			const file = this.files[0];
-			handleFileUpload(file);
+
+			if (file.size > maxSize) {
+				alert(`文件过大！最大支持 ${maxSize / 1024 / 1024} MB`);
+				this.value = ''; // 清空选中的文件
+			} else {
+				handleFileUpload(file);
+			}
 		}
 	});
 

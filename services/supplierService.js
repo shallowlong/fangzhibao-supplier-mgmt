@@ -1,10 +1,15 @@
 const debug = require('debug')('fangzhibao-supplier-mgmt:services/SupplierService')
+const fs = require('fs/promises')
+const path = require('path')
 const XLSX = require('xlsx')
 const _ = require('underscore')
 const { Op } = require("sequelize")
 const { sequelize } = require('../database')
 
 const supplierStoreModel = sequelize.models.SupplierStore
+const supplierSheetModel = sequelize.models.SupplierSheet
+
+const MEDIUM_BLOB_MAX_SIZE = 16 * 1024 * 1024 - 1;
 
 async function getAllSuppliers() {
 	return await supplierStoreModel.findAll({
@@ -34,6 +39,8 @@ async function addNewSuppliersFromExcel(excelFile) {
 	if (_.isEmpty(jsonData)) {
 		throw new Error('空Excel文件')
 	}
+
+	await _storeSupplierSheet(excelFile);
 
 	// 列映射关系：Excel列名 -> 目标对象字段名
 	const columnMapping = {
@@ -125,20 +132,53 @@ async function addNewSuppliersFromExcel(excelFile) {
 	if (newOnes.length === 0) {
 		resultJson.message = resultJson.message.concat('无新增数据项|')
 	} else {
-		resultJson.message = resultJson.message.concat('有新增数据项|')
+		resultJson.message = resultJson.message.concat('有 新增 数据项|')
 		resultJson.newOnes = newOnes
 	}
 
 	if (changedOnes.length === 0) {
 		resultJson.message = resultJson.message.concat('无更新数据项|')
 	} else {
-		resultJson.message = resultJson.message.concat('有更新数据项|')
+		resultJson.message = resultJson.message.concat('有 更新 数据项|')
 		resultJson.changedOnes = changedOnes
 	}
 
 	return resultJson
 }
 
+async function _storeSupplierSheet(filePath) {
+	if (_.isEmpty(filePath)) return
+
+	try {
+		let fileName = path.basename(filePath)
+		if (fileName.length > 100) {
+			fileName = fileName.slice(-100)
+		}
+
+		const fileStats = await fs.stat(filePath);
+		const fileSize = fileStats.size; // 核心：获取文件长度
+
+		const msg = `最大支持 ${MEDIUM_BLOB_MAX_SIZE / 1024 / 1024}MB，当前文件 ${fileSize / 1024 / 1024}MB`
+		debug(msg)
+
+		if (fileSize > MEDIUM_BLOB_MAX_SIZE) {
+			throw new Error('文件大小超过限制！' + msg);
+		}
+
+		const fileBinary = await fs.readFile(filePath)
+
+		supplierSheetModel.create({
+			sheetName: fileName,
+			sheetBinary: fileBinary,
+			sheetSize: fileSize
+		})
+
+		debug(`文件存储成功：${fileName}`);
+	} catch (error) {
+		debug(`文件存储失败：${error.message}`);
+		console.error('文件存储异常：', error);
+	}
+}
 
 /**
  * 辅助函数：比较两个字段是否相等（处理null和空字符串）
