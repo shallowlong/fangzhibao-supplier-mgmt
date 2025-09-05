@@ -1,4 +1,4 @@
-const debug = require('debug')('fangzhibao-supplier-mgmt:route/main');
+const { logger } = require('../logger')
 
 const path = require('path');
 const fs = require('fs');
@@ -30,17 +30,16 @@ router.post('/upload', authToken, async (req, res) => {
 	}
 
 	let uploadedFile = req.files.uploadedFile;
-	debug(uploadedFile.name);
+	logger.debug('uploaded file name :' + uploadedFile.name);
 
 	let uploadPath = path.join(__dirname, '..', 'uploaded_files', Date.now() + uploadedFile.name);
-	debug(uploadPath);
+	logger.debug('uploaded path: ' + uploadPath);
 
 	try {
 		// Use the mv() method to place the file somewhere on your server
 		await uploadedFile.mv(uploadPath);
 	} catch (error) {
-		debug(error);
-		console.log(error);
+		logger.error('文件操作错误：', error);
 		respJson.message = '文件操作发生异常。。';
 		_rmUploadedFile(uploadPath);
 		res.json(respJson);
@@ -54,8 +53,7 @@ router.post('/upload', authToken, async (req, res) => {
 		respJson.success = true;
 		respJson.data = serviceResultJson;
 	} catch (error) {
-		debug(error);
-		console.log(error);
+		logger.error('处理文件内容错误：', error);
 		respJson.message = '文件处理发生异常。。';
 		_rmUploadedFile(uploadPath);
 		res.json(respJson);
@@ -77,8 +75,7 @@ router.post('/addNewSupplier', authToken, async (req, res) => {
 		await supplierService.addNewSuppliersFromData(jsonData)
 		respJson.success = true
 	} catch (error) {
-		debug(error);
-		console.log(error);
+		logger.error('增加供应商操作错误：', error);
 	}
 
 	res.json(respJson)
@@ -95,8 +92,7 @@ router.post('/updateSupplier', authToken, async (req, res) => {
 		await supplierService.updateSuppliersFromData(jsonData)
 		respJson.success = true
 	} catch (error) {
-		debug(error);
-		console.log(error);
+		logger.error('更新供应商操作错误：', error);
 	}
 
 	res.json(respJson)
@@ -105,10 +101,9 @@ router.post('/updateSupplier', authToken, async (req, res) => {
 function _rmUploadedFile(uploadPath) {
 	fs.rm(uploadPath, (err) => {
 		if (err) {
-			console.error(err.message);
-			debug('删除文件失败：' + err.message);
+			logger.error('删除文件失败：' + err.message);
 		}
-		console.log(`成功删除文件：${uploadPath}`);
+		logger.debug(`成功删除文件：${uploadPath}`);
 	});
 }
 

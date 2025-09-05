@@ -3,16 +3,14 @@
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
-		"start": "node ./bin/www",
-		"dstart": "SET DEBUG=fangzhibao-supplier-mgmt:* & npm start"
+		"start": "node ./bin/www.js"
 	},
-	"author": "shallowlong@gmail.com",
+	"author": "XISHU <shallowlong@gmail.com>",
 	"license": "MIT",
 	"description": "",
 	"dependencies": {
 		"bcryptjs": "^3.0.2",
 		"cookie-parser": "~1.4.4",
-		"debug": "~2.6.9",
 		"dotenv": "^17.2.1",
 		"ejs": "^3.1.10",
 		"express": "^5.1.0",
@@ -24,8 +22,13 @@
 		"jsonwebtoken": "^9.0.2",
 		"morgan": "~1.9.1",
 		"mysql2": "^3.14.3",
+		"pino": "^9.9.2",
+		"pino-roll": "^3.1.0",
 		"sequelize": "^6.37.7",
 		"underscore": "^1.13.7",
 		"xlsx": "^0.18.5"
+	},
+	"devDependencies": {
+		"pino-pretty": "^13.1.1"
 	}
 }

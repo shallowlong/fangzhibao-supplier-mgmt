@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const debug = require('debug')('fangzhibao-supplier-mgmt:server')
+const { logger } = require('../logger')
 const { closeDBConnection, closeCustomConnectionPool } = require('../database')
 
 const app = require('../app')
@@ -32,11 +32,11 @@ function onError(error) {
 	// handle specific listen errors with friendly messages
 	switch (error.code) {
 		case 'EACCES':
-			console.error(bind + ' requires elevated privileges');
+			logger.error(bind + ' requires elevated privileges');
 			process.exit(1);
 			break;
 		case 'EADDRINUSE':
-			console.error(bind + ' is already in use');
+			logger.error(bind + ' is already in use');
 			process.exit(1);
 			break;
 		default:
@@ -50,7 +50,7 @@ function onError(error) {
 function onListening() {
 	let addr = server.address();
 	let bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-	debug('Listening on ' + bind);
+	logger.info('Listening on ' + bind)
 }
 
 
@@ -59,10 +59,10 @@ async function cleanup() {
 		// 1. 关闭HTTP服务器（停止接收新连接，等待现有连接处理完毕）
 		server.close(async (err) => {
 			if (err) {
-				console.error('关闭服务器失败:', err)
+				logger.error('关闭服务器失败:', err)
 				process.exit(1) // 强制退出
 			}
-			console.error('LOG(Using error) -> HTTP服务器已关闭')
+			logger.info('HTTP服务器已关闭')
 
 			// 2. 关闭数据库连接池
 			await closeCustomConnectionPool()
@@ -72,7 +72,7 @@ async function cleanup() {
 			process.exit(0)
 		});
 	} catch (err) {
-		console.error('LOG(Using error) -> 清理资源失败:', err)
+		logger.error('清理资源失败:', err)
 		process.exit(1)
 	}
 }
@@ -83,12 +83,12 @@ process.on('SIGTERM', cleanup)
 
 // 处理未捕获的异常，避免进程挂起
 process.on('uncaughtException', (err) => {
-	console.error('LOG(Using error) -> 未捕获的异常:', err)
+	logger.info('未捕获的异常:', err)
 	cleanup().then(() => process.exit(1))
 })
 
 // 处理未捕获的Promise拒绝
 process.on('unhandledRejection', (reason) => {
-	console.error('LOG(Using error) -> 未处理的Promise拒绝:', reason)
+	logger.info('未处理的Promise拒绝:', reason)
 	cleanup().then(() => process.exit(1))
 })

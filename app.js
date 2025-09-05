@@ -5,20 +5,22 @@ const express = require('express');
 const session = require('express-session');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
-const logger = require('morgan');
+const morgan = require('morgan');
+const { morganStream } = require('./logger');
 
 const MySQLStore = require('express-mysql-session')(session);
 const { customConnectionPool } = require('./database');
 const sessionStore = new MySQLStore({}, customConnectionPool);
 
 const app = express();
+
 // view engine setup
 app.engine('.html', require('ejs').__express);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
 app.set('trust proxy', true);
 
-app.use(logger(process.env.MORGAN_OPTION));
+app.use(morgan(process.env.MORGAN_OPTION, { stream: morganStream }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

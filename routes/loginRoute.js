@@ -1,4 +1,4 @@
-const debug = require('debug')('fangzhibao-supplier-mgmt:loginRoute')
+const { logger } = require('../logger')
 
 const jwt = require('jsonwebtoken')
 
@@ -51,7 +51,7 @@ router.post('/', async (req, res, next) => {
 	let validated = await userService.validateUser(username, password)
 	let message = '登录成功'
 
-	debug(`validate result = ${validated}`)
+	logger.debug(`validate result = ${validated}`)
 
 	if (validated) {
 		let jwt_token = jwt.sign(

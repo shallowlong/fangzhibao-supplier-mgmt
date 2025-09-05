@@ -1,3 +1,5 @@
+const { logger } = require('./logger');
+
 const _database = process.env.DATABASE_NAME;
 const _user = process.env.DATABASE_USER;
 const _pass = process.env.DATABASE_PASS;
@@ -16,9 +18,9 @@ const customConnectionPool = mysql.createPool({
 async function closeCustomConnectionPool() {
 	try {
 		await customConnectionPool.end();
-		console.log('自定义连接池已成功关闭');
+		logger.info('自定义连接池已成功关闭');
 	} catch (err) {
-		console.error('自定义关闭连接池失败：', err);
+		logger.error('自定义关闭连接池失败：', err);
 	}
 }
 
@@ -167,18 +169,18 @@ sequelize.define('SupplierSheet',
 async function testDBConnection() {
 	try {
 		await sequelize.authenticate();
-		console.log('sequelize数据库连接成功');
+		logger.info('sequelize数据库连接成功');
 	} catch (error) {
-		console.error('sequelize数据库连接失败:', error);
+		logger.error('sequelize数据库连接失败:', error);
 	}
 }
 
 async function closeDBConnection() {
 	try {
 		await sequelize.close();
-		console.log('成功关闭sequelize数据库');
+		logger.info('成功关闭sequelize数据库');
 	} catch (error) {
-		console.error('关闭sequelize数据库失败:', error);
+		logger.error('关闭sequelize数据库失败:', error);
 	}
 }
 

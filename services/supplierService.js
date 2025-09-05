@@ -1,4 +1,4 @@
-const debug = require('debug')('fangzhibao-supplier-mgmt:services/SupplierService')
+const { logger } = require('../logger')
 const fs = require('fs/promises')
 const path = require('path')
 const XLSX = require('xlsx')
@@ -22,6 +22,7 @@ async function getAllSuppliers() {
 
 async function addNewSuppliersFromExcel(excelFile) {
 	if (_.isNull(excelFile) || _.isUndefined(excelFile) || _.isEmpty(excelFile)) {
+		logger.error('excelFile参数不存在')
 		throw new Error('没输入文件参数路径')
 	}
 
@@ -37,6 +38,7 @@ async function addNewSuppliersFromExcel(excelFile) {
 	const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
 
 	if (_.isEmpty(jsonData)) {
+		logger.error('excel文件为空文件');
 		throw new Error('空Excel文件')
 	}
 
@@ -88,7 +90,10 @@ async function addNewSuppliersFromExcel(excelFile) {
 		if (!_.isEmpty(supplierStore)) supplierStores.push(supplierStore)
 	}
 
-	if (_.isEmpty(supplierStores)) throw new Error('columnMapping 映射关系出错了')
+	if (_.isEmpty(supplierStores)) {
+		logger.error('supplierStores与columnMapping映射关系错误')
+		throw new Error('columnMapping 映射关系出错了')
+	}
 
 	const existingSuppliers = await supplierStoreModel.findAll({
 		where: {
@@ -102,8 +107,7 @@ async function addNewSuppliersFromExcel(excelFile) {
 		try {
 			await supplierStoreModel.bulkCreate(supplierStores)
 		} catch (error) {
-			debug(error)
-			console.error(error)
+			logger.error('supplierStoreModel.bulkCreate操作异常：', error)
 			throw new Error('数据操作异常')
 		}
 
@@ -149,6 +153,8 @@ async function addNewSuppliersFromExcel(excelFile) {
 async function _storeSupplierSheet(filePath) {
 	if (_.isEmpty(filePath)) return
 
+	logger.debug(filePath)
+
 	try {
 		let fileName = path.basename(filePath)
 		if (fileName.length > 100) {
@@ -159,7 +165,7 @@ async function _storeSupplierSheet(filePath) {
 		const fileSize = fileStats.size; // 核心：获取文件长度
 
 		const msg = `最大支持 ${MEDIUM_BLOB_MAX_SIZE / 1024 / 1024}MB，当前文件 ${fileSize / 1024 / 1024}MB`
-		debug(msg)
+		logger.debug(msg)
 
 		if (fileSize > MEDIUM_BLOB_MAX_SIZE) {
 			throw new Error('文件大小超过限制！' + msg);
@@ -173,10 +179,9 @@ async function _storeSupplierSheet(filePath) {
 			sheetSize: fileSize
 		})
 
-		debug(`文件存储成功：${fileName}`);
+		logger.info(`文件存储成功：${fileName}`);
 	} catch (error) {
-		debug(`文件存储失败：${error.message}`);
-		console.error('文件存储异常：', error);
+		logger.error(`文件存储失败：`, error);
 	}
 }
 
@@ -196,7 +201,7 @@ function _isSameField(aField, bField) {
 }
 
 /**
- * 判断两个供应商门店对象是否完全相同（优化后）
+ * 判断两个供应商门店对象是否完全相同
  * @param {Object} a - 供应商门店对象a
  * @param {Object} b - 供应商门店对象b
  * @returns {boolean} 两个对象是否相同
@@ -240,8 +245,7 @@ async function addNewSuppliersFromData(suppliers) {
 			await supplierStoreModel.create(supplier)
 		}
 	} catch (error) {
-		debug(error)
-		console.error(error)
+		logger.error('supplierStoreModel.create操作异常：', error)
 		throw new Error('增加供应商数据出错')
 	}
 }
@@ -264,8 +268,7 @@ async function updateSuppliersFromData(suppliers) {
 			})
 		}
 	} catch (error) {
-		debug(error)
-		console.error(error)
+		logger.error('supplierStoreModel.update操作异常：', error)
 		throw new Error('更新供应商数据出错')
 	}
 }
