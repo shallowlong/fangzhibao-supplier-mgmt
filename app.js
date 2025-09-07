@@ -40,6 +40,10 @@ app.use(session({
 		sameSite: 'lax'
 	}
 }));
+app.use((req, res, next) => {
+	res.locals.isProduction = process.env.NODE_ENV === 'production';
+	next();
+});
 
 
 const loginRoute = require('./routes/loginRoute');
