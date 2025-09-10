@@ -3,7 +3,8 @@
 	"version": "1.0.0",
 	"private": true,
 	"scripts": {
-		"start": "node ./bin/www.js"
+		"start": "node ./bin/www.js",
+		"zip": "node zip.js"
 	},
 	"author": "XISHU <shallowlong@gmail.com>",
 	"license": "MIT",
@@ -29,6 +30,7 @@
 		"xlsx": "^0.18.5"
 	},
 	"devDependencies": {
+		"archiver": "^7.0.1",
 		"pino-pretty": "^13.1.1"
 	}
 }

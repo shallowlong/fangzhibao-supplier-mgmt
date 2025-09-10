@@ -1,3 +1,5 @@
+fangzhibao-supplier-mgmt-*.zip
+
 local/
 .vscode/*
 !.vscode/settings.json
