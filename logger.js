@@ -22,7 +22,8 @@ const targets = [
 			limit: {
 				count: 30
 			},
-			dateFormat: 'yyyy-MM-dd'
+			dateFormat: 'yyyy-MM-dd',
+			encoding: 'utf8'
 		}
 	}
 ]
