@@ -4,7 +4,8 @@
 	"private": true,
 	"scripts": {
 		"start": "node ./bin/www.js",
-		"zip": "node zip.js"
+		"zip": "node zip.js",
+		"test": "mocha test/*.js"
 	},
 	"author": "XISHU <shallowlong@gmail.com>",
 	"license": "MIT",
@@ -31,6 +32,11 @@
 	},
 	"devDependencies": {
 		"archiver": "^7.0.1",
-		"pino-pretty": "^13.1.1"
+		"chai": "^6.2.0",
+		"mocha": "^11.7.2",
+		"pino-pretty": "^13.1.1",
+		"proxyquire": "^2.1.3",
+		"sinon": "^21.0.0",
+		"supertest": "^7.1.4"
 	}
 }
