@@ -17,7 +17,35 @@ async function getAllSuppliers() {
 			['sectionCode', 'ASC'],
 			['storeSequence', 'ASC']
 		]
-	})
+	});
+}
+
+async function getSuppliersByName(name) {
+	return await supplierStoreModel.findAll({
+		where: {
+			supplierName: {
+				[Op.like]: `%${name}%`
+			}
+		},
+		order: [
+			['sectionCode', 'ASC'],
+			['storeSequence', 'ASC']
+		]
+	});
+}
+
+async function getSuppliersByAddress(address) {
+	return await supplierStoreModel.findAll({
+		where: {
+			storeAddress: {
+				[Op.like]: `%${address}%`
+			}
+		},
+		order: [
+			['sectionCode', 'ASC'],
+			['storeSequence', 'ASC']
+		]
+	});
 }
 
 async function addNewSuppliersFromExcel(excelFile) {
@@ -275,6 +303,8 @@ async function updateSuppliersFromData(suppliers) {
 
 module.exports = {
 	getAllSuppliers,
+	getSuppliersByName,
+	getSuppliersByAddress,
 	addNewSuppliersFromExcel,
 	addNewSuppliersFromData,
 	updateSuppliersFromData

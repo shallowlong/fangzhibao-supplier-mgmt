@@ -14,7 +14,7 @@ const sessionStore = new MySQLStore({}, customConnectionPool);
 
 const app = express();
 
-// view engine setup
+// 使用ejs作为模板引擎，并将文件扩展名设置为.html
 app.engine('.html', require('ejs').__express);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
@@ -48,6 +48,8 @@ app.use((req, res, next) => {
 
 const loginRoute = require('./routes/loginRoute');
 const mainRoute = require('./routes/mainRoute');
+const apiRoute = require('./routes/apiRoute');
+app.use('/api', apiRoute);
 app.use('/login', loginRoute);
 app.use('/', mainRoute);
 
