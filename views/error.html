@@ -1,9 +1,12 @@
-<h1>
-	<%= message %>
-</h1>
-<h2>
-	<%= error.status %>
-</h2>
-<pre>
-	<%= error.stack %>
-</pre>
+<div class="header">
+	<h1>${message}</h1>
+</div>
+<div class="content"></div>
+<% if(isProduction) { %>
+	<% if (error) { %>
+	<h2>${error.status}</h2>
+	<pre>${error.stack}</pre>
+	<% } %>
+<% } %>
+	<p><a href="/">返回首页</a></p>
+</div>
