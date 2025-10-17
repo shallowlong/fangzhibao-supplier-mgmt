@@ -6,7 +6,7 @@
 		"start": "node ./bin/www.js",
 		"zip": "node zip.js"
 	},
-	"author": "XISHU <shallowlong@gmail.com>",
+	"author": "xishu2099 <shallowlong@gmail.com>",
 	"license": "MIT",
 	"description": "",
 	"dependencies": {
