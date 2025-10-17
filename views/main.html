@@ -6,27 +6,59 @@
 			<p class="lead text-muted">查看供应商的哪些信息发生了变化</p>
 		</div>
 
-		<div class="card">
-			<div class="card-header">
-				<h5 class="mb-0">上传供应商数据文件</h5>
-			</div>
-			<div class="card-body">
-				<div class="upload-area" id="uploadArea">
-					<div class="upload-icon">
-						<i class="fas fa-file-excel"></i>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">供应商汇总</h5>
 					</div>
-					<h5>拖放Excel文件到此处，或点击上传</h5>
-					<p class="text-muted">支持的文件格式：.xlsx, .xls, .csv</p>
-					<input type="file" class="file-input" id="fileInput" accept=".xlsx, .xls, .csv">
+					<div class="card-body">
+						<div class="data-display">
+							<div class="data-item">
+								<strong>最后更新时间：</strong>
+								<span id="lastUpdateTime">loading...</span>
+							</div>
+							<div class="data-item">
+								<strong>合作总数：</strong>
+								<span id="totalCooperation">loading...</span>
+							</div>
+							<div class="data-item">
+								<strong>失效总数：</strong>
+								<span id="totalInvalid">loading...</span>
+							</div>
+							<div class="data-item">
+								<strong>区域的供应商数量：</strong>
+								<span id="regionSupplierCount">loading...</span>
+							</div>
+						</div>
+					</div>
 				</div>
+			</div>
 
-				<div class="upload-message alert" id="uploadMessage" role="alert"></div>
-
-				<div class="spinner-container">
-					<div class="spinner-border text-primary" role="status">
-						<span class="visually-hidden">上传中...</span>
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-header">
+						<h5 class="mb-0">上传供应商文件</h5>
 					</div>
-					<p class="mt-2">正在上传文件，请稍候...</p>
+					<div class="card-body">
+						<div class="upload-area" id="uploadArea">
+							<div class="upload-icon">
+								<i class="fas fa-file-excel"></i>
+							</div>
+							<h5>拖放Excel文件到此处，或点击上传</h5>
+							<p class="text-muted">支持的文件格式：.xlsx, .xls, .csv</p>
+							<input type="file" class="file-input" id="fileInput" accept=".xlsx, .xls, .csv">
+						</div>
+
+						<div class="upload-message alert" id="uploadMessage" role="alert"></div>
+
+						<div class="spinner-container">
+							<div class="spinner-border text-primary" role="status">
+								<span class="visually-hidden">上传中...</span>
+							</div>
+							<p class="mt-2">正在上传文件，请稍候...</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -51,7 +83,7 @@
 
 		<div class="card">
 			<div class="card-header">
-				<h5 class="mb-0">现有供应商列表</h5>
+				<h5 class="mb-0">供应商列表</h5>
 			</div>
 			<div class="card-body">
 				<table id="supplierStoreTable" class="hidden">

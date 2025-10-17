@@ -301,11 +301,70 @@ async function updateSuppliersFromData(suppliers) {
 	}
 }
 
+/**
+ * @description 获取供应商统计数据
+ * @returns {Object} 统计数据对象
+ */
+async function getSupplierStatistics() {
+	try {
+		const lastUpdatedSupplier = await supplierStoreModel.findOne({
+			order: [['updatedAt', 'DESC']],
+			attributes: ['updatedAt']
+		});
+
+		const totalCooperation = await supplierStoreModel.count({
+			where: {
+				supplierType: '代发'
+			}
+		});
+
+		const totalInvalid = await supplierStoreModel.count({
+			where: {
+				supplierType: {
+					[Op.ne]: '代发'
+				}
+			}
+		});
+
+		const regionStats = await supplierStoreModel.findAll({
+			attributes: [
+				'sectionCode',
+				[sequelize.fn('COUNT', sequelize.col('sectionCode')), 'count']
+			],
+			where: {
+				supplierType: '代发',
+				sectionCode: {
+					[Op.ne]: ''
+				}
+			},
+			group: ['sectionCode'],
+			order: [['count', 'DESC']]
+		});
+
+		// 格式化区域统计数据
+		const regionSupplierCount = regionStats.map(stat => ({
+			sectionCode: stat.sectionCode,
+			count: stat.dataValues.count
+		}));
+
+		return {
+			lastUpdateTime: lastUpdatedSupplier ? lastUpdatedSupplier.updatedAt : null,
+			totalCooperation,
+			totalInvalid,
+			regionSupplierCount
+		};
+	} catch (error) {
+		logger.error('获取供应商统计数据失败:', error);
+		throw new Error('获取供应商统计数据失败');
+	}
+}
+
 module.exports = {
 	getAllSuppliers,
 	getSuppliersByName,
 	getSuppliersByAddress,
 	addNewSuppliersFromExcel,
 	addNewSuppliersFromData,
-	updateSuppliersFromData
+	updateSuppliersFromData,
+	getSupplierStatistics
 }

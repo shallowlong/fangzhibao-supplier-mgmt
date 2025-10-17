@@ -9,7 +9,6 @@ const authToken = require('./authRoute');
 
 const supplierService = require('../services/supplierService');
 
-
 router.get('/', authToken, async (req, res, next) => {
 	let suppliers = await supplierService.getAllSuppliers();
 	res.render('main', {
@@ -106,5 +105,24 @@ function _rmUploadedFile(uploadPath) {
 		logger.debug(`成功删除文件：${uploadPath}`);
 	});
 }
+
+/**
+ * @route GET /getSupplierStatistics
+ * @description 获取供应商统计数据
+ */
+router.get('/getSupplierStatistics', async (req, res) => {
+	try {
+		const statistics = await supplierService.getSupplierStatistics();
+
+		res.status(200).json({
+			success: true,
+			message: '供应商统计数据获取成功',
+			data: statistics
+		});
+	} catch (error) {
+		logger.error('获取供应商统计数据时出错:', error);
+		res.status(500).json({ success: false, message: '服务器内部错误' });
+	}
+});
 
 module.exports = router;

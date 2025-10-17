@@ -4,6 +4,9 @@ $(document).ready(function () {
 	const uploadMessage = $('#uploadMessage');
 	const spinnerContainer = $('.spinner-container');
 
+	// 页面加载时获取供应商统计数据
+	loadSupplierStatistics();
+
 	uploadArea.click(function (e) {
 		e.stopPropagation();
 		fileInput.click();
@@ -454,6 +457,55 @@ $(document).ready(function () {
 					$btn.html(originalText).prop('disabled', false);
 				}
 			});
+		}
+	}
+
+	function loadSupplierStatistics() {
+		$.ajax({
+			url: '/getSupplierStatistics',
+			type: 'GET',
+			dataType: 'json',
+			success: function (response) {
+				if (response.success && response.data) {
+					updateStatisticsDisplay(response.data, false);
+				} else {
+					console.error('获取统计数据失败:', response.message);
+					updateStatisticsDisplay({}, true);
+				}
+			},
+			error: function (xhr, status, error) {
+				console.error('获取统计数据失败:', error);
+				updateStatisticsDisplay({}, true);
+			}
+		});
+	}
+
+	function updateStatisticsDisplay(data, failed) {
+		if (failed) {
+			let displayText = '获取失败..';
+			$('#lastUpdateTime').text(displayText);
+			$('#totalCooperation').text(displayText);
+			$('#totalInvalid').text(displayText);
+			$('#regionSupplierCount').text(displayText);
+			return;
+		}
+
+		if (data.lastUpdateTime) {
+			const updateTime = new Date(data.lastUpdateTime);
+			$('#lastUpdateTime').text(updateTime.toLocaleString('zh-CN'));
+		} else {
+			$('#lastUpdateTime').text('暂无数据');
+		}
+		$('#totalCooperation').text(data.totalCooperation || 0);
+		$('#totalInvalid').text(data.totalInvalid || 0);
+
+		if (data.regionSupplierCount && data.regionSupplierCount.length > 0) {
+			const regionText = data.regionSupplierCount.map(region => {
+				return `【${region.sectionCode}: ${region.count}个】`;
+			}).join(', ');
+			$('#regionSupplierCount').text(regionText);
+		} else {
+			$('#regionSupplierCount').text('暂无数据');
 		}
 	}
 });
