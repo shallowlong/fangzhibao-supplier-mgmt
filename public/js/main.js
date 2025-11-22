@@ -146,7 +146,8 @@ $(document).ready(function () {
 		page: 1,
 		pageSize: 25,
 		pagination: true,
-		paginationLoop: false
+		paginationLoop: false,
+		search: true
 	});
 
 	$('#supplierStoreTable').show();

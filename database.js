@@ -104,7 +104,14 @@ sequelize.define('SupplierStore',
 		},
 		sectionCode: {
 			type: DataTypes.STRING(20),
-			comment: `区域编码`
+			comment: `区域编码`,
+			get() {
+				let sc = this.getDataValue('sectionCode') || '';
+				if (sc.trim().length > 0) {
+					sc = '{' + sc.substring(sc.indexOf('-') + 1) + '}';
+				}
+				return sc;
+			}
 		},
 		storeSequence: {
 			type: DataTypes.INTEGER,
