@@ -250,7 +250,6 @@ function _isSameSupplierStore(a, b) {
 		'allowToChangePrice',
 		'paymentPoint',
 		'contactPhoneNum',
-		'sectionCode',
 		'storeSequence'
 	]
 
