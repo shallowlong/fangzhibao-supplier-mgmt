@@ -14,7 +14,7 @@
 		"cookie-parser": "~1.4.4",
 		"dotenv": "^17.2.1",
 		"ejs": "^3.1.10",
-		"express": "^5.1.0",
+		"express": "^5.2.1",
 		"express-fileupload": "^1.5.2",
 		"express-mysql-session": "^3.0.3",
 		"express-rate-limit": "^8.0.1",
