@@ -3,6 +3,9 @@
 	<div class="container">
 		<div class="page-header">
 			<h1>纺支宝ERP供货商管理组件</h1>
+			<% if (!isProduction) { %>
+				<span class="dev-badge">DEV</span>
+			<% } %>
 			<p class="lead text-muted">查看供应商的哪些信息发生了变化</p>
 		</div>
 
@@ -92,21 +95,21 @@
 				<table id="supplierStoreTable" class="hidden">
 					<thead>
 						<tr class="table-primary">
-							<th>门店ID</th>
-							<th>供应商</th>
-							<th>门店名称</th>
-							<th>档口号</th>
-							<th>门店地址</th>
-							<th>区域编码</th>
-							<th>门店顺序</th>
-							<th>供应商类型</th>
-							<th>是否代拿</th>
-							<th>直发订单开启<br>用户快递</th>
-							<th>自动推送<br>订单打印</th>
-							<th>待拿货数据<br>同步供应商</th>
-							<th>允许改价</th>
-							<th>采购付款节点</th>
-							<th>联系电话</th>
+							<th data-field="storeId">门店ID</th>
+							<th data-field="supplierName">供应商</th>
+							<th data-field="storeName">门店名称</th>
+							<th data-field="storeNo">档口号</th>
+							<th data-field="storeAddress">门店地址</th>
+							<th data-field="sectionCode" data-filter-control="select">区域编码</th>
+							<th data-field="storeSequence">门店顺序</th>
+							<th data-field="supplierType" data-filter-control="select">供应商类型</th>
+							<th data-field="othersTakeGood">是否代拿</th>
+							<th data-field="usingUserExpress">直发订单开启<br>用户快递</th>
+							<th data-field="autoPushAndPrint">自动推送<br>订单打印</th>
+							<th data-field="autoSyncToSupplier">待拿货数据<br>同步供应商</th>
+							<th data-field="allowToChangePrice">允许改价</th>
+							<th data-field="paymentPoint">采购付款节点</th>
+							<th data-field="contactPhoneNum">联系电话</th>
 						</tr>
 					</thead>
 					<tbody>

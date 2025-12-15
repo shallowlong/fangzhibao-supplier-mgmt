@@ -147,7 +147,9 @@ $(document).ready(function () {
 		pageSize: 25,
 		pagination: true,
 		paginationLoop: false,
-		search: true
+		search: true,
+		filterControl: true,
+		showSearchClearButton: true
 	});
 
 	$('#supplierStoreTable').show();
@@ -194,15 +196,15 @@ $(document).ready(function () {
 			},
 			{
 				field: 'usingUserExpress',
-				title: '直发订单开启用户快递'
+				title: '直发订单开启<br>用户快递'
 			},
 			{
 				field: 'autoPushAndPrint',
-				title: '自动推送订单打印'
+				title: '自动推送<br>订单打印'
 			},
 			{
 				field: 'autoSyncToSupplier',
-				title: '待拿货数据同步供应商'
+				title: '待拿货数据<br>同步供应商'
 			},
 			{
 				field: 'allowToChangePrice',
@@ -222,7 +224,7 @@ $(document).ready(function () {
 				align: 'center',
 				formatter: function (value, row, index) {
 					return `<button class="btn btn-sm btn-success submit-btn" data-storeid="${row.storeId}" data-index="${index}" title="确认增加">
-                            <i class="fas fa-paper-plane"></i> 确认增加
+                            <i class="fas fa-paper-plane"></i><br>确认增加
                         </button>`;
 				},
 				events: {
@@ -355,17 +357,17 @@ $(document).ready(function () {
 			},
 			{
 				field: 'usingUserExpress',
-				title: '直发订单开启用户快递',
+				title: '直发订单开启<br>用户快递',
 				cellStyle: commonCellStyle
 			},
 			{
 				field: 'autoPushAndPrint',
-				title: '自动推送订单打印',
+				title: '自动推送<br>订单打印',
 				cellStyle: commonCellStyle
 			},
 			{
 				field: 'autoSyncToSupplier',
-				title: '待拿货数据同步供应商',
+				title: '待拿货数据<br>同步供应商',
 				cellStyle: commonCellStyle
 			},
 			{
@@ -390,7 +392,7 @@ $(document).ready(function () {
 				formatter: function (value, row, index) {
 					if (index % 2 === 1) {
 						return `<button class="btn btn-sm btn-primary update-btn" data-storeid="${row.storeId}" title="确认更新">
-								<i class="fas fa-sync-alt"></i> 确认更新
+								<i class="fas fa-sync-alt"></i><br>确认更新
 							</button>`;
 					}
 					return '[原数据]';

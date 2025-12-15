@@ -9,9 +9,9 @@ const userService = require('../services/userService')
 
 const captchaLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1分钟
-	max: 10, // 每个IP最多10次请求
-	trustProxy: true,
-	message: { success: false, message: '请求过于频繁，请1分钟后再试' }
+	limit: 10, // 每个IP最多10次请求
+	message: { success: false, message: '请求过于频繁，请1分钟后再试' },
+	validate: { trustProxy: true }
 })
 
 router.get('/', (req, res, next) => {
