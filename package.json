@@ -8,7 +8,7 @@
 	},
 	"author": "xishu2099 <shallowlong@gmail.com>",
 	"license": "MIT",
-	"description": "",
+	"description": "一个用于检查纺支宝ERP内置的供货商的信息是否存在更新的插件",
 	"dependencies": {
 		"bcryptjs": "^3.0.2",
 		"cookie-parser": "~1.4.4",
