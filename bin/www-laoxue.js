@@ -18,23 +18,21 @@ function onListening() {
 
 async function cleanup() {
 	try {
-		// 1. 关闭HTTP服务器（停止接收新连接，等待现有连接处理完毕）
+		logger.info('****——关闭HTTP服务器中...');
 		server.close(async (err) => {
-			if (err) {
-				logger.warn('关闭服务器失败:', err);
-				process.exit(1); // 强制退出
-			}
-			logger.info('HTTP服务器已关闭');
-
-			// 2. 关闭数据库连接池
+			logger.info('****——关闭数据库连接池中...');
 			await closeCustomConnectionPool();
 			await closeDBConnection();
 
-			// 3. 退出进程
+			if (err) {
+				logger.warn('XXXX——关闭HTTP服务器失败，强制退出:', err);
+				process.exit(1);
+			}
+			logger.info('****——HTTP服务器已关闭，正常退出当前进程');
 			process.exit(0);
 		});
 	} catch (err) {
-		logger.warn('清理资源失败:', err);
+		logger.fatal('XXXX——清理资源失败，强制退出当前进程:', err);
 		process.exit(1);
 	}
 }
@@ -42,15 +40,13 @@ async function cleanup() {
 // 监听终止信号：SIGINT（Ctrl+C）、SIGTERM（kill命令）
 process.on('SIGINT', cleanup);
 process.on('SIGTERM', cleanup);
-
-// 处理未捕获的异常，避免进程挂起
+// 处理未捕获的异常
 process.on('uncaughtException', (err) => {
-	logger.info('未捕获的异常:', err);
+	logger.error('XXXX——未捕获的异常，强制退出当前进程:', err);
 	cleanup().then(() => process.exit(1));
 });
-
 // 处理未捕获的Promise拒绝
 process.on('unhandledRejection', (reason) => {
-	logger.info('未处理的Promise拒绝:', reason);
+	logger.error('XXXX——未处理的Promise拒绝，强制退出当前进程:', reason);
 	cleanup().then(() => process.exit(1));
 });
