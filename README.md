@@ -1,9 +1,9 @@
-# 纺支宝ERP供货商管理插件
+# 纺支宝ERP——供货商管理WebApp
 
-一个用于检查纺支宝ERP内置的供货商的信息是否存在更新的插件。<br>
+一个用于检查纺支宝ERP内置的供货商的信息是否存在更新的WebApp。<br>
 由于纺支宝ERP会默认管理供货商信息，但却没有更新通知功能，有点不方便。<br>
-该插件工具提供了一个可交互的UI管理界面，支持解析从纺支宝ERP导出的包含供应商信息的excel文件。<br>
-通过上传后对现有信息的比对，从而发现并更新到自己的纺支宝ERP供应商模块中，如区域编码，门店顺序，门店地址等信息。<br>
+该WebApp提供了一个可交互的UI管理界面，支持解析从纺支宝ERP导出的包含供应商信息的excel文件。<br>
+通过上传后对现有信息的比对，从而发现并更新到自己已匹配的供应商模块中，如区域编码，门店顺序，门店地址等信息。<br>
 
 ![](screenshot.png)
 
@@ -13,7 +13,7 @@
 npm install
 npm start
 
-> localhost:3000
+> localhost:3001
 ```
 
 ## 基础配置
@@ -23,6 +23,14 @@ npm start
 	- CREATE DATABASE IF NOT EXISTS fangzhibao_suppliers_mgmt;
 	- 默认数据库用户名/密码：fzb_dbuser/fzb_dbpass
 - 默认登录用户名/密码：admin/pass1234
+
+## 技术栈
+
+1. Node.js/npm
+2. Express5
+3. pino
+4. Sequelize
+5. jQuery/bootstrap5
 
 ## Backlogs
 
