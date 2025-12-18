@@ -249,7 +249,7 @@ $(document).ready(function () {
 		function submitAddData(data, rowIndex) {
 			const $btn = $(`button[data-storeid="${data.storeId}"]`);
 			const originalText = $btn.html();
-			$btn.html('<i class="fas fa-spinner fa-spin"></i> 提交中...').prop('disabled', true);
+			$btn.html('<i class="fas fa-spinner fa-spin"></i><br>提交中...').prop('disabled', true);
 
 			// 构造符合API要求的数据格式（数组包含一个对象）
 			const submitData = [data];
@@ -420,7 +420,7 @@ $(document).ready(function () {
 		function submitUpdateData(data, rowIndex) {
 			const $btn = $(`.update-btn[data-storeid="${data.storeId}"]`);
 			const originalText = $btn.html();
-			$btn.html('<i class="fas fa-spinner fa-spin"></i> 提交中...').prop('disabled', true);
+			$btn.html('<i class="fas fa-spinner fa-spin"></i><br>提交中...').prop('disabled', true);
 
 			const submitData = [data];
 
