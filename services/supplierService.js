@@ -1,13 +1,13 @@
-const { logger } = require('../logger')
-const fs = require('fs/promises')
-const path = require('path')
-const XLSX = require('xlsx')
-const _ = require('underscore')
-const { Op } = require("sequelize")
-const { sequelize } = require('../database')
+const { logger } = require('../logger');
+const fs = require('fs/promises');
+const path = require('path');
+const XLSX = require('xlsx');
+const _ = require('underscore');
+const { Op } = require("sequelize");
+const { SupplierStore, SupplierSheet, sequelize } = require('../database');
 
-const supplierStoreModel = sequelize.models.SupplierStore
-const supplierSheetModel = sequelize.models.SupplierSheet
+const supplierStoreModel = SupplierStore;
+const supplierSheetModel = SupplierSheet;
 
 const MEDIUM_BLOB_MAX_SIZE = 16 * 1024 * 1024 - 1;
 
@@ -50,24 +50,24 @@ async function getSuppliersByAddress(address) {
 
 async function addNewSuppliersFromExcel(excelFile) {
 	if (_.isNull(excelFile) || _.isUndefined(excelFile) || _.isEmpty(excelFile)) {
-		logger.error('excelFile参数不存在')
-		throw new Error('没输入文件参数路径')
+		logger.error('excelFile参数不存在');
+		throw new Error('没输入文件参数路径');
 	}
 
 	let resultJson = {
 		message: ''
 	}
 
-	const workbook = XLSX.readFile(excelFile)
-	const sheetName = workbook.SheetNames[0]
-	const worksheet = workbook.Sheets[sheetName]
+	const workbook = XLSX.readFile(excelFile);
+	const sheetName = workbook.SheetNames[0];
+	const worksheet = workbook.Sheets[sheetName];
 
 	// 将工作表转换为JSON数组 - 自动将第一行作为标题行
-	const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
+	const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
 	if (_.isEmpty(jsonData)) {
 		logger.error('excel文件为空文件');
-		throw new Error('空Excel文件')
+		throw new Error('空Excel文件');
 	}
 
 	await _storeSupplierSheet(excelFile);
@@ -91,36 +91,36 @@ async function addNewSuppliersFromExcel(excelFile) {
 		'门店顺序': 'storeSequence'
 	}
 
-	const supplierStores = []
-	const storeIds = []
+	const supplierStores = [];
+	const storeIds = [];
 
 	for (let i = 0; i < jsonData.length; i++) {
-		const rowData = jsonData[i]
-		const supplierStore = {}
+		const rowData = jsonData[i];
+		const supplierStore = {};
 
 		// 遍历每一列，根据映射关系转换
 		for (const [excelColumn, targetField] of Object.entries(columnMapping)) {
 			if (rowData.hasOwnProperty(excelColumn)) {
-				const cellValue = rowData[excelColumn]
+				const cellValue = rowData[excelColumn];
 
 				// 根据字段类型进行转换
 				if (targetField === 'storeId' || targetField === 'storeSequence') {
-					supplierStore[targetField] = Number(cellValue) || null
-					if (targetField === 'storeId') storeIds.push(supplierStore[targetField])
+					supplierStore[targetField] = Number(cellValue) || null;
+					if (targetField === 'storeId') storeIds.push(supplierStore[targetField]);
 				} else {
 					// 其他字段保持原样，处理空值
-					supplierStore[targetField] = cellValue !== undefined ? cellValue : ''
+					supplierStore[targetField] = cellValue !== undefined ? cellValue : '';
 				}
 			}
 		}
 
 		// 文本格式如果不匹配则为空
-		if (!_.isEmpty(supplierStore)) supplierStores.push(supplierStore)
+		if (!_.isEmpty(supplierStore)) supplierStores.push(supplierStore);
 	}
 
 	if (_.isEmpty(supplierStores)) {
-		logger.error('supplierStores与columnMapping映射关系错误')
-		throw new Error('columnMapping 映射关系出错了')
+		logger.error('supplierStores与columnMapping映射关系错误');
+		throw new Error('columnMapping 映射关系出错了');
 	}
 
 	const existingSuppliers = await supplierStoreModel.findAll({
@@ -133,45 +133,45 @@ async function addNewSuppliersFromExcel(excelFile) {
 
 	if (_.isEmpty(existingSuppliers)) {
 		try {
-			await supplierStoreModel.bulkCreate(supplierStores)
+			await supplierStoreModel.bulkCreate(supplierStores);
 		} catch (error) {
-			logger.error('supplierStoreModel.bulkCreate操作异常：', error)
-			throw new Error('数据操作异常')
+			logger.error('supplierStoreModel.bulkCreate操作异常：', error);
+			throw new Error('数据操作异常');
 		}
 
-		resultJson.message = '成功插入数据'
-		return
+		resultJson.message = '成功插入数据';
+		return resultJson;
 	}
 
-	let [existingMap, newMap] = [new Map(), new Map()]
+	let [existingMap, newMap] = [new Map(), new Map()];
 	existingSuppliers.forEach((sup) => {
-		existingMap.set(sup.storeId, sup)
+		existingMap.set(sup.storeId, sup);
 	})
 	supplierStores.forEach((sup) => {
-		newMap.set(sup.storeId, sup)
+		newMap.set(sup.storeId, sup);
 	})
 
-	let [newOnes, changedOnes] = [[], []]
+	let [newOnes, changedOnes] = [[], []];
 	for (let [key, value] of newMap) {
 		if (!existingMap.has(key)) {
-			newOnes.push(value)
+			newOnes.push(value);
 		} else if (!_isSameSupplierStore(value, existingMap.get(key))) {
-			changedOnes.push(existingMap.get(key)) // old
-			changedOnes.push(value) // new
+			changedOnes.push(existingMap.get(key)); // old
+			changedOnes.push(value); // new
 		}
 	}
 
 	if (newOnes.length === 0) {
-		resultJson.message = resultJson.message.concat('无新增数据项|')
+		resultJson.message = resultJson.message.concat('无新增数据项|');
 	} else {
-		resultJson.message = resultJson.message.concat('有 新增 数据项|')
+		resultJson.message = resultJson.message.concat('有 新增 数据项|');
 		resultJson.newOnes = newOnes
 	}
 
 	if (changedOnes.length === 0) {
-		resultJson.message = resultJson.message.concat('无更新数据项|')
+		resultJson.message = resultJson.message.concat('无更新数据项|');
 	} else {
-		resultJson.message = resultJson.message.concat('有 更新 数据项|')
+		resultJson.message = resultJson.message.concat('有 更新 数据项|');
 		resultJson.changedOnes = changedOnes
 	}
 
@@ -181,25 +181,25 @@ async function addNewSuppliersFromExcel(excelFile) {
 async function _storeSupplierSheet(filePath) {
 	if (_.isEmpty(filePath)) return
 
-	logger.debug(filePath)
+	logger.debug(filePath);
 
 	try {
-		let fileName = path.basename(filePath)
+		let fileName = path.basename(filePath);
 		if (fileName.length > 100) {
-			fileName = fileName.slice(-100)
+			fileName = fileName.slice(-100);
 		}
 
 		const fileStats = await fs.stat(filePath);
 		const fileSize = fileStats.size; // 核心：获取文件长度
 
 		const msg = `最大支持 ${MEDIUM_BLOB_MAX_SIZE / 1024 / 1024}MB，当前文件 ${fileSize / 1024 / 1024}MB`
-		logger.debug(msg)
+		logger.debug(msg);
 
 		if (fileSize > MEDIUM_BLOB_MAX_SIZE) {
 			throw new Error('文件大小超过限制！' + msg);
 		}
 
-		const fileBinary = await fs.readFile(filePath)
+		const fileBinary = await fs.readFile(filePath);
 
 		supplierSheetModel.create({
 			sheetName: fileName,

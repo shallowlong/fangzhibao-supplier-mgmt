@@ -43,15 +43,15 @@ if (!isProduction) {
 	})
 }
 
+const logger = pino({
+	level: logLevel,
+	timestamp: pino.stdTimeFunctions.isoTime,
+}, pino.transport({ targets }));
+
 const morganStream = {
 	write: (message) => {
 		logger.info({ type: 'http', msg: message });
 	}
 }
-
-const logger = pino({
-	level: logLevel,
-	timestamp: pino.stdTimeFunctions.isoTime,
-}, pino.transport({ targets }));
 
 module.exports = { logger, morganStream }

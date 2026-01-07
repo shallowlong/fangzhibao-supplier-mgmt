@@ -1,10 +1,10 @@
 const { logger } = require('../logger');
 
 const crypto = require('crypto');
-const { sequelize } = require('../database');
+const { ApiToken } = require('../database');
 const { validateUser } = require('./userService');
 
-const apiTokenModel = sequelize.models.ApiToken;
+const apiTokenModel = ApiToken;
 
 const _generateSecureApiToken = () => {
 	return crypto.randomBytes(16).toString('hex');
