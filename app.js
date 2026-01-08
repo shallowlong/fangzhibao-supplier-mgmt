@@ -12,6 +12,8 @@ const MySQLStore = require('express-mysql-session')(session);
 const { customConnectionPool } = require('./database');
 const sessionStore = new MySQLStore({}, customConnectionPool);
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const app = express();
 
 // 使用ejs作为模板引擎，并将文件扩展名设置为.html
@@ -36,12 +38,12 @@ app.use(session({
 	cookie: {
 		maxAge: 60 * 60 * 1000, // 默认1小时
 		httpOnly: true,
-		secure: process.env.NODE_ENV === 'production',
+		secure: isProduction,
 		sameSite: 'lax'
 	}
 }));
 app.use((req, res, next) => {
-	res.locals.isProduction = process.env.NODE_ENV === 'production';
+	res.locals.isProduction = isProduction;
 	next();
 });
 
@@ -49,9 +51,11 @@ app.use((req, res, next) => {
 const loginRoute = require('./routes/loginRoute');
 const mainRoute = require('./routes/mainRoute');
 const apiRoute = require('./routes/apiRoute');
+const historyRoute = require('./routes/historyRoute');
 app.use('/api', apiRoute);
 app.use('/login', loginRoute);
 app.use('/', mainRoute);
+app.use('/history', historyRoute);
 
 
 // catch 404 and forward to error handler
@@ -62,8 +66,9 @@ app.use(function (req, res, next) {
 // error handler
 app.use(function (err, req, res, next) {
 	// set locals, only providing error in development
+	res.locals.isProduction = isProduction;
 	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
+	res.locals.error = !isProduction ? err : {};
 
 	// render the error page
 	res.status(err.status || 500);

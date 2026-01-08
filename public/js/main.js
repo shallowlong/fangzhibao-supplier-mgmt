@@ -103,6 +103,7 @@ $(document).ready(function () {
 		if (data.changedOnes) {
 			initUpdateSupplierTable(data.changedOnes)
 		}
+		$('#sheetId').val(data.sheetId);
 	}
 
 	function showBootstrapModal(title, message, type) {
@@ -148,6 +149,7 @@ $(document).ready(function () {
 		pagination: true,
 		paginationLoop: false,
 		search: true,
+		searchAlign: 'left',
 		filterControl: true,
 		showSearchClearButton: true
 	});
@@ -251,10 +253,11 @@ $(document).ready(function () {
 			const originalText = $btn.html();
 			$btn.html('<i class="fas fa-spinner fa-spin"></i><br>提交中...').prop('disabled', true);
 
-			// 构造符合API要求的数据格式（数组包含一个对象）
-			const submitData = [data];
+			const submitData = {
+				sheetId: $('#sheetId').val(),
+				suppliersData: [data]
+			}
 
-			// 发送AJAX请求
 			$.ajax({
 				url: '/addNewSupplier',
 				type: 'POST',
@@ -262,6 +265,15 @@ $(document).ready(function () {
 				data: JSON.stringify(submitData),
 				dataType: 'json',
 				success: function (response) {
+					if (!response.success) {
+						showBootstrapModal(
+							'操作失败',
+							`提交失败: ${response.message}<br>请稍后重试`,
+							'danger'
+						);
+						console.error('提交失败', response.message);
+						return;
+					}
 					const tableData = $('#addSupplierTable').bootstrapTable('getData');
 					tableData.splice(rowIndex, 1);
 					$('#addSupplierTable').bootstrapTable('load', tableData);
@@ -407,11 +419,10 @@ $(document).ready(function () {
 
 		$('#updateSupplierTable').bootstrapTable({
 			data: updateData,
-			cardView: false,
 			striped: true,
-			pagination: false,
+			pagination: true,
 			pageSize: 10,
-			pageList: [5, 10, 20],
+			pageList: [10, 20],
 			columns: updateColumns
 		});
 
@@ -422,7 +433,10 @@ $(document).ready(function () {
 			const originalText = $btn.html();
 			$btn.html('<i class="fas fa-spinner fa-spin"></i><br>提交中...').prop('disabled', true);
 
-			const submitData = [data];
+			const submitData = {
+				sheetId: $('#sheetId').val(),
+				suppliersData: [data]
+			}
 
 			$.ajax({
 				url: '/updateSupplier',
@@ -431,6 +445,16 @@ $(document).ready(function () {
 				data: JSON.stringify(submitData),
 				dataType: 'json',
 				success: function (response) {
+					if (!response.success) {
+						showBootstrapModal(
+							'操作失败',
+							`提交失败: ${response.message}<br>请稍后重试`,
+							'danger'
+						);
+						console.error('提交失败', response.message);
+						return;
+					}
+
 					const tableData = $('#updateSupplierTable').bootstrapTable('getData');
 					const oldRowIndex = rowIndex - 1;
 

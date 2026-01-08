@@ -69,12 +69,13 @@ router.post('/addNewSupplier', authToken, async (req, res) => {
 		message: ''
 	}
 
-	let jsonData = req.body
+	let { sheetId, suppliersData } = req.body;
 	try {
-		await supplierService.addNewSuppliersFromData(jsonData)
+		await supplierService.addNewSuppliersFromData(suppliersData, sheetId)
 		respJson.success = true
 	} catch (error) {
 		logger.error('增加供应商操作错误：', error);
+		respJson.message = '增加供应商操作发生异常。。';
 	}
 
 	res.json(respJson)
@@ -86,12 +87,13 @@ router.post('/updateSupplier', authToken, async (req, res) => {
 		message: ''
 	}
 
-	let jsonData = req.body
+	let { sheetId, suppliersData } = req.body;
 	try {
-		await supplierService.updateSuppliersFromData(jsonData)
+		await supplierService.updateSuppliersFromData(suppliersData, sheetId)
 		respJson.success = true
-	} catch (error) {
-		logger.error('更新供应商操作错误：', error);
+	} catch (e) {
+		logger.error('更新供应商操作错误：', e);
+		respJson.message = '更新供应商操作发生异常。。';
 	}
 
 	res.json(respJson)
@@ -106,11 +108,7 @@ function _rmUploadedFile(uploadPath) {
 	});
 }
 
-/**
- * @route GET /getSupplierStatistics
- * @description 获取供应商统计数据
- */
-router.get('/getSupplierStatistics', async (req, res) => {
+router.get('/getSupplierStatistics', authToken, async (req, res) => {
 	try {
 		const statistics = await supplierService.getSupplierStatistics();
 

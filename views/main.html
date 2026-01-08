@@ -53,6 +53,7 @@
 							<h5>拖放Excel文件到此处，或点击上传</h5>
 							<p class="text-muted">支持的文件格式：.xlsx, .xls, .csv</p>
 							<input type="file" class="file-input" id="fileInput" accept=".xlsx, .xls, .csv">
+							<span class="hidden" id="sheetId"></span>
 						</div>
 
 						<div class="upload-message alert" id="uploadMessage" role="alert"></div>
@@ -88,8 +89,9 @@
 
 		<hr class="my-4">
 		<div class="card">
-			<div class="card-header">
+			<div class="card-header d-flex justify-content-between align-items-center">
 				<h5 class="mb-0">供应商列表</h5>
+				<a href="/history" class="btn btn-info btn-sm">查看操作历史</a>
 			</div>
 			<div class="card-body">
 				<table id="supplierStoreTable" class="hidden">
@@ -103,12 +105,12 @@
 							<th data-field="sectionCode" data-filter-control="select">区域编码</th>
 							<th data-field="storeSequence">门店顺序</th>
 							<th data-field="supplierType" data-filter-control="select">供应商类型</th>
-							<th data-field="othersTakeGood">是否代拿</th>
-							<th data-field="usingUserExpress">直发订单开启<br>用户快递</th>
-							<th data-field="autoPushAndPrint">自动推送<br>订单打印</th>
-							<th data-field="autoSyncToSupplier">待拿货数据<br>同步供应商</th>
-							<th data-field="allowToChangePrice">允许改价</th>
-							<th data-field="paymentPoint">采购付款节点</th>
+							<th data-field="othersTakeGood" data-filter-control="select">是否代拿</th>
+							<th data-field="usingUserExpress" data-filter-control="select">直发订单开启<br>用户快递</th>
+							<th data-field="autoPushAndPrint" data-filter-control="select">自动推送<br>订单打印</th>
+							<th data-field="autoSyncToSupplier" data-filter-control="select">待拿货数据<br>同步供应商</th>
+							<th data-field="allowToChangePrice" data-filter-control="select">允许改价</th>
+							<th data-field="paymentPoint" data-filter-control="select">采购付款节点</th>
 							<th data-field="contactPhoneNum">联系电话</th>
 						</tr>
 					</thead>

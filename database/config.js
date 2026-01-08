@@ -12,7 +12,9 @@ exports.dbConfig = {
 		charset: 'utf8mb4'
 	},
 	define: {
-		freezeTableName: true
+		timestamps: true, // 添加 createdAt 和 updatedAt 字段
+		underscored: false,
+		freezeTableName: true // 禁用自动复数表名
 	},
 	pool: {
 		max: 3,

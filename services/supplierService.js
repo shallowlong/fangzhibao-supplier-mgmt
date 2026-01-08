@@ -4,10 +4,11 @@ const path = require('path');
 const XLSX = require('xlsx');
 const _ = require('underscore');
 const { Op } = require("sequelize");
-const { SupplierStore, SupplierSheet, sequelize } = require('../database');
+const { SupplierStore, SupplierSheet, SupplierStoreHistory, sequelize } = require('../database');
 
 const supplierStoreModel = SupplierStore;
 const supplierSheetModel = SupplierSheet;
+const supplierStoreHistoryModel = SupplierStoreHistory;
 
 const MEDIUM_BLOB_MAX_SIZE = 16 * 1024 * 1024 - 1;
 
@@ -70,7 +71,7 @@ async function addNewSuppliersFromExcel(excelFile) {
 		throw new Error('空Excel文件');
 	}
 
-	await _storeSupplierSheet(excelFile);
+	const sheetId = await _storeSupplierSheet(excelFile);
 
 	// 列映射关系：Excel列名 -> 目标对象字段名
 	const columnMapping = {
@@ -133,6 +134,7 @@ async function addNewSuppliersFromExcel(excelFile) {
 
 	if (_.isEmpty(existingSuppliers)) {
 		try {
+			// 第一次直接初始化
 			await supplierStoreModel.bulkCreate(supplierStores);
 		} catch (error) {
 			logger.error('supplierStoreModel.bulkCreate操作异常：', error);
@@ -165,21 +167,22 @@ async function addNewSuppliersFromExcel(excelFile) {
 		resultJson.message = resultJson.message.concat('无新增数据项|');
 	} else {
 		resultJson.message = resultJson.message.concat('有 新增 数据项|');
-		resultJson.newOnes = newOnes
+		resultJson.newOnes = newOnes;
 	}
 
 	if (changedOnes.length === 0) {
 		resultJson.message = resultJson.message.concat('无更新数据项|');
 	} else {
 		resultJson.message = resultJson.message.concat('有 更新 数据项|');
-		resultJson.changedOnes = changedOnes
+		resultJson.changedOnes = changedOnes;
 	}
 
+	resultJson.sheetId = sheetId; // 添加sheetId到返回结果
 	return resultJson
 }
 
 async function _storeSupplierSheet(filePath) {
-	if (_.isEmpty(filePath)) return
+	if (_.isEmpty(filePath)) return null;
 
 	logger.debug(filePath);
 
@@ -201,15 +204,17 @@ async function _storeSupplierSheet(filePath) {
 
 		const fileBinary = await fs.readFile(filePath);
 
-		supplierSheetModel.create({
+		const sheet = await supplierSheetModel.create({
 			sheetName: fileName,
 			sheetBinary: fileBinary,
 			sheetSize: fileSize
-		})
+		});
 
 		logger.info(`文件存储成功：${fileName}`);
+		return sheet.sheetId;
 	} catch (error) {
 		logger.error(`文件存储失败：`, error);
+		return null;
 	}
 }
 
@@ -258,7 +263,7 @@ function _isSameSupplierStore(a, b) {
 }
 
 
-async function addNewSuppliersFromData(suppliers) {
+async function addNewSuppliersFromData(suppliers, sheetId) {
 	if (_.isNull(suppliers) || _.isUndefined(suppliers) || _.isEmpty(suppliers)) {
 		throw new Error('没有可以增加的供应商数据')
 	}
@@ -267,17 +272,30 @@ async function addNewSuppliersFromData(suppliers) {
 		throw new Error('增加的供应商数据格式不对，需要一个数组')
 	}
 
+	const t = await sequelize.transaction();
 	try {
 		for (let supplier of suppliers) {
-			await supplierStoreModel.create(supplier)
+			let newSupplier = await supplierStoreModel.create(supplier);
+
+			await supplierStoreHistoryModel.create({
+				storeId: newSupplier.storeId,
+				sheetId: sheetId,
+				historyType: '新增',
+				originSupplierStoreInJson: null,
+				newSupplierStoreInJson: JSON.stringify(newSupplier)
+			}).catch(err => {
+				logger.error('记录新增历史失败:', err);
+			});
 		}
+		await t.commit();
 	} catch (error) {
+		await t.rollback();
 		logger.error('supplierStoreModel.create操作异常：', error)
 		throw new Error('增加供应商数据出错')
 	}
 }
 
-async function updateSuppliersFromData(suppliers) {
+async function updateSuppliersFromData(suppliers, sheetId) {
 	if (_.isNull(suppliers) || _.isUndefined(suppliers) || _.isEmpty(suppliers)) {
 		throw new Error('没有可以更新的供应商数据')
 	}
@@ -286,15 +304,36 @@ async function updateSuppliersFromData(suppliers) {
 		throw new Error('增加的供应商数据格式不对，需要一个数组')
 	}
 
+	const t = await sequelize.transaction();
 	try {
 		for (let supplier of suppliers) {
-			await supplierStoreModel.update(supplier, {
+			// 获取旧数据
+			let existingSupplier = await supplierStoreModel.findOne({
 				where: {
 					storeId: supplier.storeId
 				}
-			})
+			});
+
+			if (existingSupplier) {
+				let oldSupplierJson = JSON.stringify(existingSupplier);
+				existingSupplier.set(supplier);
+				await existingSupplier.save();
+				let newSupplierJson = JSON.stringify(existingSupplier);
+
+				await supplierStoreHistoryModel.create({
+					storeId: existingSupplier.storeId,
+					sheetId: sheetId,
+					historyType: '更新',
+					originSupplierStoreInJson: oldSupplierJson,
+					newSupplierStoreInJson: newSupplierJson
+				}).catch(err => {
+					logger.error('记录更新历史失败:', err);
+				});
+			}
 		}
+		await t.commit();
 	} catch (error) {
+		await t.rollback();
 		logger.error('supplierStoreModel.update操作异常：', error)
 		throw new Error('更新供应商数据出错')
 	}
@@ -358,6 +397,21 @@ async function getSupplierStatistics() {
 	}
 }
 
+/**
+ * @description 获取供应商店铺历史记录
+ * @returns {Array} 历史记录数组
+ */
+async function getAllSupplierHistories() {
+	try {
+		return await supplierStoreHistoryModel.findAll({
+			order: [['createdAt', 'DESC']]
+		});
+	} catch (error) {
+		logger.error('获取供应商历史记录失败:', error);
+		throw new Error('获取供应商历史记录失败');
+	}
+}
+
 module.exports = {
 	getAllSuppliers,
 	getSuppliersByName,
@@ -365,5 +419,6 @@ module.exports = {
 	addNewSuppliersFromExcel,
 	addNewSuppliersFromData,
 	updateSuppliersFromData,
-	getSupplierStatistics
+	getSupplierStatistics,
+	getAllSupplierHistories
 }

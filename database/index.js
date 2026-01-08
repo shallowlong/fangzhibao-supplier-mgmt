@@ -4,6 +4,8 @@ const { Sequelize } = require("sequelize");
 const { dbConfig, customPoolConfig } = require('./config');
 const customConnectionPool = mysql.createPool(customPoolConfig);
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const sequelize = new Sequelize(
 	dbConfig.database,
 	dbConfig.username,
@@ -11,14 +13,12 @@ const sequelize = new Sequelize(
 	dbConfig
 );
 
-// 导出基础模块，避免循环依赖
 const db = {
 	sequelize,
 	customConnectionPool,
 	models: {}
 };
 
-// 延迟导入logger，避免循环依赖
 let logger;
 setTimeout(() => {
 	logger = require('../logger').logger;
@@ -56,7 +56,11 @@ async function closeDBConnection() {
 }
 
 async function initTables() {
-	await sequelize.sync();
+	if (!isProduction) {
+		await sequelize.sync({ alter: true });
+	} else {
+		await sequelize.sync();
+	}
 }
 
 async function initUser() {
@@ -74,12 +78,14 @@ db.models.User = require('./models/User')(sequelize, Sequelize.DataTypes);
 db.models.SupplierStore = require('./models/SupplierStore')(sequelize, Sequelize.DataTypes);
 db.models.SupplierSheet = require('./models/SupplierSheet')(sequelize, Sequelize.DataTypes);
 db.models.ApiToken = require('./models/ApiToken')(sequelize, Sequelize.DataTypes);
+db.models.SupplierStoreHistory = require('./models/SupplierStoreHistory')(sequelize, Sequelize.DataTypes);
 
 
 db.User = db.models.User;
 db.SupplierStore = db.models.SupplierStore;
 db.SupplierSheet = db.models.SupplierSheet;
 db.ApiToken = db.models.ApiToken;
+db.SupplierStoreHistory = db.models.SupplierStoreHistory;
 db.closeCustomConnectionPool = closeCustomConnectionPool;
 db.closeDBConnection = closeDBConnection;
 

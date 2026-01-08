@@ -1,97 +1,97 @@
-const { logger } = require('../logger')
+const { logger } = require('../logger');
 
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
-const express = require('express')
+const express = require('express');
 const rateLimit = require('express-rate-limit');
-const router = express.Router()
-const userService = require('../services/userService')
+const router = express.Router();
+const userService = require('../services/userService');
 
 const captchaLimiter = rateLimit({
 	windowMs: 60 * 1000, // 1分钟
 	limit: 10, // 每个IP最多10次请求
 	message: { success: false, message: '请求过于频繁，请1分钟后再试' },
 	validate: { trustProxy: true }
-})
+});
 
 router.get('/', (req, res, next) => {
-	const { code, svg } = generateCaptcha()
+	const { code, svg } = generateCaptcha();
 
-	setupCaptchaInSession(req, code)
+	setupCaptchaInSession(req, code);
 
-	res.render('login', { captchaImage: svg })
+	res.render('login', { captchaImage: svg });
 })
 
 router.post('/', async (req, res, next) => {
-	const { username, password, captchaCode } = req.body
+	const { username, password, captchaCode } = req.body;
 
 	let respJson = {
 		success: false,
 		message: ''
-	}
+	};
 
-	const captchaCodeInSession = req.session.captchaCode
-	const captchaExpiresInSession = req.session.captchaExpires
+	const captchaCodeInSession = req.session.captchaCode;
+	const captchaExpiresInSession = req.session.captchaExpires;
 	if (!captchaCodeInSession || (Date.now() > captchaExpiresInSession)) {
-		respJson.message = '验证码已过期，请刷新'
+		respJson.message = '验证码已过期，请刷新';
 
-		delete req.session.captchaCode
-		delete req.session.captchaExpires
+		delete req.session.captchaCode;
+		delete req.session.captchaExpires;
 
-		res.json(respJson)
-		return
+		res.json(respJson);
+		return;
 	}
 
 	if (captchaCode.toLowerCase() !== captchaCodeInSession) {
-		respJson.message = '验证码错误，请重试'
-		res.json(respJson)
-		return
+		respJson.message = '验证码错误，请重试';
+		res.json(respJson);
+		return;
 	}
 
-	let validated = await userService.validateUser(username, password)
-	let message = '登录成功'
+	let validated = await userService.validateUser(username, password);
+	let message = '登录成功';
 
-	logger.debug(`validate result = ${validated}`)
+	logger.debug(`validate result = ${validated}`);
 
 	if (validated) {
 		let jwt_token = jwt.sign(
 			{ username: username },
 			process.env.JWT_SECRET,
 			{ expiresIn: '1h' } // 令牌1小时后过期
-		)
+		);
 		res.cookie('jwt_token', jwt_token, {
 			httpOnly: true,
 			secure: process.env.NODE_ENV === 'production',
 			maxAge: 60 * 60 * 1000, // 对应1小时过期
 			sameSite: 'strict'
-		})
+		});
 	} else {
-		message = '用户名或密码错误'
+		message = '用户名或密码错误';
 	}
 
-	respJson.success = validated
-	respJson.message = message
+	respJson.success = validated;
+	respJson.message = message;
 
-	res.json(respJson)
+	res.json(respJson);
 })
 
 router.get('/refreshCaptcha', captchaLimiter, (req, res) => {
-	const { code, svg } = generateCaptcha()
+	const { code, svg } = generateCaptcha();
 
-	setupCaptchaInSession(req, code)
+	setupCaptchaInSession(req, code);
 
-	res.json({ success: true, captchaImage: svg })
+	res.json({ success: true, captchaImage: svg });
 })
 
 function setupCaptchaInSession(req, code) {
-	req.session.captchaCode = code.toLowerCase()
-	req.session.captchaExpires = Date.now() + 5 * 60 * 1000 // 5分钟过期
+	req.session.captchaCode = code.toLowerCase();
+	req.session.captchaExpires = Date.now() + 5 * 60 * 1000; // 5分钟过期
 }
 
 // 生成SVG验证码
 function generateCaptcha() {
 	// 生成4位随机字符（数字+字母）
-	const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz'
+	const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
 	let code = '';
 	for (let i = 0; i < 4; i++) {
 		code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -149,7 +149,7 @@ function generateCaptcha() {
 	return {
 		code,
 		svg: `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`
-	}
+	};
 }
 
-module.exports = router
+module.exports = router;
